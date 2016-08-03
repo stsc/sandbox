@@ -1,0 +1,44 @@
+# Album plugin: captions/exif/strftime
+# For info:     'album -plugin_info captions/exif/strftime'
+# For usage:    'album -plugin_usage captions/exif/strftime'
+use strict;
+
+sub start_plugin {
+    my ($opt, $plugin, $path) = @_;
+
+    album::hook($opt, 'got_exif_info', \&got_exif_info);
+    album::add_option(1, 'format', album::OPTION_STR, usage => 'strftime() format string');
+
+    return {
+        author => 'Steven Schubiger',
+        href => 'http://stsc.refcnt.org/',
+        version => '1.2',
+        description => 'Reformat EXIF date/time with strftime() format string.',
+    };
+}
+
+sub got_exif_info {
+    my ($opt, $data, $hook_name, $exif, $pic) = @_;
+
+    my %copy = %$exif;
+
+    if ($copy{'Date/Time'} =~ /^\d{4}:\d{2}:\d{2}\s+\d{2}:\d{2}:\d{2}$/) {
+        my $format = album::option($opt, 'format') || '%Y-%m-%d %H:%M:%S';
+
+        my $date_time = delete $copy{'Date/Time'};
+
+        my %values;
+        @values{qw(year month day hour min sec)} = map $_+0, $date_time =~ /^(\d{4}):(\d{2}):(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/;
+
+        $values{year} -= 1900;
+        $values{month}--;
+
+        require POSIX;
+        $copy{'Date/Time'} = POSIX::strftime($format, @values{qw(sec min hour day month year)});
+    }
+
+    return { %copy };
+}
+
+# Plugins always end with:
+1;
