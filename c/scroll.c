@@ -5,14 +5,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-void draw_matrix (int, int);
+#define PAUSE_MS 200
 
-struct {
+static void draw_matrix (int, int);
+static void alter_mode_pos (char *, int *, int);
+
+static struct {
     char first;
     char second;
 } mode;
 
-struct {
+static struct {
     int x, y;
 } pos;
 
@@ -31,7 +34,7 @@ main (void)
     exit (EXIT_SUCCESS);
 }
 
-void
+static void
 draw_matrix (int x, int y)
 {
     int xiter, yiter;
@@ -49,11 +52,12 @@ draw_matrix (int x, int y)
 
     matrix[pos.x][pos.y] = '+';
 
-    mode.first  = '+';
-    mode.second = '+';
+    mode.first = mode.second = '+';
 
     while (1)
       {
+        int pos_y;
+
         clear ();
 
         for (xiter = 0; xiter < x; xiter++)
@@ -66,58 +70,14 @@ draw_matrix (int x, int y)
 
         memset (&matrix[pos.x], 0, y);
 
-        switch (mode.first)
-          {
-            case '+':
-              if (pos.x != 0)
-                pos.x--;
-              else
-                {
-                  pos.x++;
-                  mode.first = '-';
-                }
-              break;
-            case '-':
-              if (pos.x + 1 != x)
-                pos.x++;
-              else
-                {
-                  pos.x--;
-                  mode.first = '+';
-                }
-              break;
-            default:
-              abort ();
-        }
+        alter_mode_pos (&mode.first, &pos.x, x);
 
         memset (&matrix[pos.x], '-', y);
 
         for (xiter = 0; xiter < x; xiter++)
           matrix[xiter][pos.y] = 0;
 
-        switch (mode.second)
-          {
-            case '+':
-              if (pos.y != 0)
-                pos.y--;
-              else
-                {
-                  pos.y++;
-                  mode.second = '-';
-                }
-              break;
-            case '-':
-              if (pos.y + 1 != y)
-                pos.y++;
-              else
-                {
-                  pos.y--;
-                  mode.second = '+';
-                }
-              break;
-            default:
-              abort ();
-          }
+        alter_mode_pos (&mode.second, &pos.y, y);
 
         for (xiter = 0; xiter < x; xiter++)
           matrix[xiter][pos.y] = '|';
@@ -125,19 +85,46 @@ draw_matrix (int x, int y)
         switch (mode.second)
           {
             case '+':
-              matrix[pos.x][pos.y]     = '+';
-              matrix[pos.x][pos.y + 1] = '-';
+              pos_y = pos.y + 1;
               break;
             case '-':
-              matrix[pos.x][pos.y]     = '+';
-              matrix[pos.x][pos.y - 1] = '-';
+              pos_y = pos.y - 1;
               break;
             default:
               abort ();
           }
+        matrix[pos.x][pos.y] = '+';
+        matrix[pos.x][pos_y] = '-';
 
-        napms (200);
+        napms (PAUSE_MS);
         refresh ();
     }
 }
 
+static void
+alter_mode_pos (char *mode, int *pos, int max)
+{
+    switch (*mode)
+      {
+        case '+':
+          if (*pos != 0)
+            (*pos)--;
+          else
+            {
+              (*pos)++;
+              *mode = '-';
+            }
+          break;
+        case '-':
+          if (*pos + 1 != max)
+            (*pos)++;
+          else
+            {
+              (*pos)--;
+              *mode = '+';
+            }
+          break;
+        default:
+          abort ();
+      }
+}
