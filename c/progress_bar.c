@@ -10,8 +10,8 @@ main (void)
 {
     unsigned int i = 0, percent;
     char bar[101];
-    char indicators[] = { '|', '/', '-', '\\', '|', '/', '-', '\\' };
-    struct timespec ts = { 0, 250000000 };
+    const char indicators[] = { '|', '/', '-', '\\', '|', '/', '-', '\\' };
+    const struct timespec ts = { 0, 250000000L };
 
     memset (&bar, '\0', sizeof (bar));
 
