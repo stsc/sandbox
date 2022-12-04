@@ -17,12 +17,14 @@ main (void)
 
     for (percent = 1; percent <= 100; percent++)
       {
-        unsigned int printed;
+        int printed;
         bar[percent - 1] = '=';
         if (percent < 100)
           printed = printf ("%3d%% %c [%s>", percent, indicators[i], bar);
         else
           printed = printf ("%3d%% [==%s]", percent, bar);
+        if (printed <= 0)
+          exit (EXIT_FAILURE);
         fflush (stdout);
         if (nanosleep (&ts, NULL) < 0)
           {
@@ -31,7 +33,7 @@ main (void)
           }
         if (percent < 100)
           {
-            unsigned int clear = printed;
+            int clear = printed;
             while (clear--)
               printf ("\b");
             if ((i + 1) > (sizeof (indicators) - 1))
