@@ -41,7 +41,7 @@ __DATA__
     <link rel="shortcut icon" type="image/x-icon" href="/~sts/favicon.ico">
     <title>$TITLE</title>
   </head>
-  <body bgcolor="#ffffff">
+  <body bgcolor="#ffffff" style="font-family:Arial, Helvetica, sans-serif">
     <h1>$MESSAGE</h1>
     <a href="/~sts">Back to main page</a>
   </body>
